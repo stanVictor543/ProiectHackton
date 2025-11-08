@@ -1,62 +1,56 @@
-/* --- Definirea Temei de Culori --- */
+/* --- Variabile pentru Tema "Cyberpunk" (Violet/Turcoaz) --- */
 :root {
-    --color-purple: #6c5ce7;       /* Un mov vibrant */
-    --color-turquoise: #00f5d4;    /* Un turcoaz strălucitor */
-    --color-dark-bg: #1e1e2d;    /* Fundal principal închis */
-    --color-dark-card: #2c2c3e;  /* Fundal card puțin mai deschis */
-    --color-text-light: #f0f0f8;   /* Text deschis */
-    --color-text-muted: #8a8a9e;  /* Text gri */
-    --color-danger: #ff4757;      /* Pentru erori */
+    --theme-bg: #1a0a2e; /* Fundal principal (violet închis) */
+    --theme-card: #2a1a4a; /* Fundal card (violet) */
+    --theme-border: #4a3a6a; /* Culoare bordură */
+    --theme-text: #e0d8ff; /* Text principal (lavandă deschis) */
+    --theme-text-muted: #8a7d9f; /* Text secundar (gri-violet) */
+    
+    --theme-primary: #08d9d6; /* Turcoaz (accent principal) */
+    --theme-primary-rgb: 8, 217, 214;
+    
+    --theme-om: #08d9d6;      /* Turcoaz pentru Om */
+    --theme-om-rgb: 8, 217, 214;
+
+    --theme-robot: #f72585;  /* Roz-Neon pentru Robot (contrast) */
+    --theme-robot-rgb: 247, 37, 133;
+
+    --theme-danger: #f94144;  /* Roșu pentru eroare */
+    --theme-danger-rgb: 249, 65, 68;
 }
 
-/* --- Stiluri de Bază --- */
+/* --- Setări Globale --- */
+/* Folosim clasele din HTML-ul tău: .bg-dark-theme */
 body.bg-dark-theme {
-    background-color: var(--color-dark-bg);
-    color: var(--color-text-light);
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background-color: var(--theme-bg);
+    color: var(--theme-text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
-/* --- Stiluri Card & Header --- */
+/* --- Stilul Cardului Principal --- */
+/* Folosim clasele din HTML-ul tău: .bg-card-dark */
 .bg-card-dark {
-    background-color: var(--color-dark-card) !important;
-    border: 1px solid var(--color-purple);
+    background-color: var(--theme-card);
+    border: 1px solid var(--theme-border) !important;
+    border-radius: 0.75rem;
+    box-shadow: 0 10px 40px rgba(var(--theme-primary-rgb), 0.1);
 }
 
-.bg-primary-theme {
-    background: linear-gradient(90deg, var(--color-purple) 0%, var(--color-turquoise) 100%);
-    border-bottom: 0;
+.card-header.bg-primary-theme {
+    background-color: var(--theme-primary); 
+    color: #1a0a2e; /* Text închis pe fundal turcoaz */
+    border-bottom: 1px solid var(--theme-primary);
+    border-top-left-radius: 0.75rem;
+    border-top-right-radius: 0.75rem;
 }
 
-/* --- Butonul Principal de Clasificare --- */
-.btn-secondary-theme {
-    background-color: var(--color-turquoise);
-    color: var(--color-dark-bg);
-    border: none;
-    font-weight: 600;
-    padding: 0.75rem 1.25rem;
-    transition: all 0.3s ease;
-}
-
-.btn-secondary-theme:hover,
-.btn-secondary-theme:focus {
-    background-color: var(--color-turquoise);
-    color: var(--color-dark-bg);
-    box-shadow: 0 0 15px var(--color-turquoise);
-    transform: translateY(-2px);
-}
-
-.btn-secondary-theme:disabled {
-    background-color: #555;
-    color: #999;
-}
-
-/* --- Zona de Drag & Drop --- */
+/* --- Zona de Upload (Drag & Drop) --- */
 .drop-zone-container {
-    border: 3px dashed var(--color-text-muted);
-    border-radius: 10px;
-    padding: 2rem;
-    text-align: center;
-    background-color: rgba(0,0,0,0.1);
+    background-color: rgba(var(--theme-primary-rgb), 0.05); /* Fundal turcoaz foarte subtil */
+    border: 2px dashed var(--theme-border);
+    border-radius: 0.5rem;
     transition: all 0.3s ease;
 }
 
@@ -65,117 +59,219 @@ body.bg-dark-theme {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    width: 100%;
-    height: 100%;
+    padding: 2rem 1rem;
     cursor: pointer;
-    color: var(--color-text-muted);
+    color: var(--theme-text-muted);
+    transition: all 0.3s ease;
 }
 
-.drop-zone-label svg {
-    color: var(--color-purple);
+.drop-zone-label i {
+    font-size: 3rem;
+    color: var(--theme-primary);
     transition: all 0.3s ease;
+}
+
+.drop-zone-label .fs-5 {
+    color: var(--theme-text);
 }
 
 /* Stare de hover/drag */
 .drop-zone-container:hover,
 .drop-zone-container.drag-over {
-    border-color: var(--color-turquoise);
-    background-color: rgba(0, 245, 212, 0.05);
+    border-color: var(--theme-primary);
+    background-color: rgba(var(--theme-primary-rgb), 0.1);
+}
+.drop-zone-container:hover .drop-zone-label i {
+    transform: scale(1.1) translateY(-5px);
 }
 
-.drop-zone-container:hover .drop-zone-label,
-.drop-zone-container.drag-over .drop-zone-label {
-    color: var(--color-turquoise);
+/* --- Butonul de Clasificare --- */
+.btn-secondary-theme {
+    background-color: var(--theme-primary);
+    border: none;
+    font-weight: 600;
+    padding: 0.75rem 1rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(var(--theme-primary-rgb), 0.2);
+    color: #1a0a2e; /* Text închis pe butonul turcoaz */
 }
 
-.drop-zone-container:hover svg,
-.drop-zone-container.drag-over svg {
-    color: var(--color-turquoise);
-    transform: scale(1.1);
+.btn-secondary-theme:hover {
+    background-color: #0afaf6;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(var(--theme-primary-rgb), 0.3);
+    color: #1a0a2e;
 }
 
-/* --- Zona de Preview & Scanare --- */
-.image-preview-container {
-    position: relative; /* Necesar pentru linia de scanare */
-    overflow: hidden; /* Ascunde linia când iese din cadru */
-    border: 2px solid var(--color-purple);
-    border-radius: 8px;
-    background-color: #000;
-    min-height: 200px; /* Înlocuiește placeholder-ul */
-    display: flex;
-    align-items: center;
-    justify-content: center;
+.btn-secondary-theme:disabled {
+    background-color: var(--theme-text-muted);
+    opacity: 0.7;
+    box-shadow: none;
 }
 
+
+/* --- Zona de Previzualizare și Rezultate --- */
 .no-preview-box {
-    border: 2px dashed var(--color-text-muted);
-    border-radius: 8px;
-    min-height: 200px;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: var(--color-text-muted);
-    background-color: rgba(0,0,0,0.1);
+    height: 100%;
+    min-height: 250px;
+    background-color: rgba(0,0,0,0.2); /* Fundal mai închis */
+    border: 2px dashed var(--theme-border);
+    border-radius: 0.5rem;
+    color: var(--theme-text-muted);
+    font-style: italic;
 }
 
-.image-preview-container img {
-    max-height: 350px;
+.image-preview-container {
+    position: relative;
+    overflow: hidden;
+    border: 2px solid var(--theme-border);
+    border-radius: 0.5rem;
+    min-height: 250px;
+    background-color: rgba(0,0,0,0.2);
+}
+
+#imagePreview {
+    max-height: 400px;
     width: 100%;
-    object-fit: cover;
+    object-fit: contain;
 }
 
-/* --- Animația de Scanare --- */
+/* Animația liniei de scanare (stil Turcoaz) */
 .scan-line {
-    display: none; /* Ascuns implicit */
+    display: none;
     position: absolute;
+    top: 0;
     left: 0;
     width: 100%;
-    height: 4px;
-    background-color: var(--color-turquoise);
-    box-shadow: 0 0 15px 3px var(--color-turquoise);
-    opacity: 0.8;
+    height: 3px;
+    background: var(--theme-primary);
+    box-shadow: 0 0 10px var(--theme-primary), 
+                0 0 20px var(--theme-primary);
+    border-radius: 3px;
+    animation: scan 2.5s cubic-bezier(0.65, 0.05, 0.36, 1) infinite;
 }
 
-/* Când containerul are clasa .is-scanning, arată linia și pornește animația */
 .image-preview-container.is-scanning .scan-line {
     display: block;
-    animation: scan 2s linear infinite;
 }
 
 @keyframes scan {
     0% {
-        top: 0;
+        transform: translateY(0);
     }
     100% {
-        top: 100%;
+        transform: translateY(100%);
     }
 }
 
-/* --- Casetele de Rezultat --- */
-.alert {
-    border: none;
-    color: var(--color-dark-bg);
+/* --- NOU: Bara de Progres --- */
+.progress-container {
+    width: 100%;
+    background-color: var(--theme-border);
+    border-radius: 0.25rem;
+    margin-top: 1rem;
+    overflow: hidden;
+    height: 10px;
 }
 
-.alert-info { /* Starea neutră */
-    background-color: #555;
-    color: var(--color-text-light);
+.progress-bar-custom {
+    width: 0%;
+    height: 10px;
+    background-color: var(--theme-primary);
+    border-radius: 0.25rem;
+    box-shadow: 0 0 10px var(--theme-primary);
+    /* Animația va fi adăugată/resetată de JS */
 }
 
-.alert-robot { /* Clasa custom pentru "robot" */
-    background-color: var(--color-purple);
-    color: var(--color-text-light);
+/* Animația de umplere a barei */
+@keyframes fillBar {
+    from { width: 0%; }
+    to { width: 100%; }
+}
+
+/* --- NOU: Stilul Zonei de Rezultate (Procente) --- */
+.result-box-custom {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    border: 2px solid var(--theme-border);
+    border-radius: 0.5rem;
+    background-color: rgba(0,0,0,0.2);
+    overflow: hidden;
+    transition: border-color 0.3s ease;
+}
+
+.result-partition {
+    padding: 1rem;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+/* Partea principală, dominantă */
+.result-partition.primary {
+    flex-basis: 65%;
+    background-color: rgba(var(--theme-primary-rgb), 0.1);
+}
+
+/* Partea secundară, "celălalt" rezultat */
+.result-partition.secondary {
+    flex-basis: 35%;
+    background-color: transparent;
+    border-left: 2px solid var(--theme-border);
+    opacity: 0.7;
+}
+
+.result-percentage {
+    display: block;
+    font-size: 2.5rem;
+    font-weight: 700;
+}
+
+.result-label {
+    display: block;
+    font-size: 1rem;
     font-weight: 500;
+    text-transform: uppercase;
 }
 
-.alert-om { /* Clasa custom pentru "om" */
-    background-color: var(--color-turquoise);
-    color: var(--color-dark-bg);
-    font-weight: 500;
+/* Stiluri specifice per rezultat */
+
+/* Când rezultatul e OM (Turcoaz) */
+.result-box-custom.result-om {
+    border-color: var(--theme-om);
+}
+.result-box-custom.result-om .primary {
+    background-color: rgba(var(--theme-om-rgb), 0.15);
+    color: var(--theme-om);
+}
+.result-box-custom.result-om .secondary {
+    color: var(--theme-text-muted);
 }
 
-.alert-eroare { /* Clasa custom pentru "eroare" */
-    background-color: var(--color-danger);
-    color: var(--color-text-light);
-    font-weight: 500;
+/* Când rezultatul e ROBOT (Roz-Neon) */
+.result-box-custom.result-robot {
+    border-color: var(--theme-robot);
+}
+.result-box-custom.result-robot .primary {
+    background-color: rgba(var(--theme-robot-rgb), 0.15);
+    color: var(--theme-robot);
+}
+.result-box-custom.result-robot .secondary {
+    color: var(--theme-text-muted);
+}
+
+/* Când e eroare (Roșu) */
+.result-box-custom.result-eroare {
+    border-color: var(--theme-danger);
+    display: block; /* Ocupă tot spațiul pentru mesajul de eroare */
+}
+.result-box-custom.result-eroare .primary {
+    background-color: rgba(var(--theme-danger-rgb), 0.15);
+    color: var(--theme-danger);
+}
+.result-box-custom.result-eroare .secondary {
+    display: none; /* Ascundem partajul secundar la eroare */
 }

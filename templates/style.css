@@ -1,0 +1,180 @@
+/* Base Theme Colors */
+:root {
+    --bg-dark: #1a1a1a;
+    --card-dark: #2d2d2d;
+    --primary: #4f46e5;
+    --secondary: #3f3f46;
+    --text-light: #f1f5f9;
+    --text-muted: #94a3b8;
+    --success: #22c55e;
+    --danger: #ef4444;
+}
+
+/* Theme Classes */
+.bg-dark-theme {
+    background-color: var(--bg-dark);
+    color: var(--text-light);
+}
+
+.bg-card-dark {
+    background-color: var(--card-dark);
+    color: white;
+}
+
+.bg-primary-theme {
+    background-color: var(--primary);
+    color: white;
+}
+
+.btn-secondary-theme {
+    background-color: var(--secondary);
+    color: var(--text-light);
+    transition: all 0.3s ease;
+}
+
+.btn-secondary-theme:hover {
+    background-color: var(--primary);
+    color: white;
+    transform: translateY(-2px);
+}
+
+/* Drop Zone Styling */
+.drop-zone-container {
+    border: 2px dashed var(--text-muted);
+    border-radius: 1rem;
+    padding: 2rem;
+    text-align: center;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    color: white;
+}
+
+.drop-zone-container:hover {
+    border-color: var(--primary);
+    background-color: rgba(79, 70, 229, 0.1);
+}
+
+.drop-zone-label {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+}
+
+.drop-zone-label i {
+    font-size: 3rem;
+    color: var(--text-muted);
+}
+
+.drag-over {
+    border-color: var(--primary);
+    background-color: rgba(79, 70, 229, 0.15);
+}
+
+/* Image Preview */
+.image-preview-container {
+    position: relative;
+    border-radius: 1rem;
+    overflow: hidden;
+    background: var(--card-dark);
+}
+
+.no-preview-box {
+    height: 200px;
+    border-radius: 1rem;
+    background: var(--card-dark);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+}
+
+/* Scan Animation */
+.scan-line {
+    display: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--primary), transparent);
+    z-index: 1;
+}
+
+.is-scanning .scan-line {
+    display: block;
+    animation: scan 2.5s linear infinite;
+}
+
+@keyframes scan {
+    0% { top: 0; }
+    100% { top: 100%; }
+}
+
+/* Progress Bar */
+.progress-container {
+    height: 4px;
+    background: var(--secondary);
+    border-radius: 2px;
+    margin-top: 1rem;
+    overflow: hidden;
+}
+
+.progress-bar-custom {
+    height: 100%;
+    background: var(--primary);
+    width: 0%;
+}
+
+@keyframes fillBar {
+    0% { width: 0; }
+    100% { width: 100%; }
+}
+
+/* Results Box */
+.result-box-custom {
+    border-radius: 1rem;
+    overflow: hidden;
+}
+
+.result-partition {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.result-percentage {
+    font-size: 2rem;
+    font-weight: bold;
+}
+
+.result-label {
+    font-size: 1rem;
+    color: var(--text-muted);
+}
+
+.primary {
+    background-color: var(--card-dark);
+}
+
+.secondary {
+    background-color: var(--secondary);
+    opacity: 0.8;
+}
+
+/* Result States */
+.result-robot .primary {
+    background-color: var(--primary);
+    color: white;
+}
+
+.result-om .primary {
+    background-color: var(--success);
+    color: white;
+}
+
+.result-eroare .primary {
+    background-color: var(--danger);
+    color: white;
+}

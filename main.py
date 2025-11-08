@@ -121,7 +121,7 @@ criterion = nn.CrossEntropyLoss(weight=weights) # Folosim ponderile
 optimizer = optim.Adam(net.parameters(), lr=0.001) 
 
 # --- MODIFICARE 5: Mai multe epoci ---
-num_epochs = 30 # 5 era mult prea puțin
+num_epochs = 5 # 5 era mult prea puțin
 
 print("--- Începe antrenamentul ---")
 

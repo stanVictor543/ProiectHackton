@@ -7,63 +7,77 @@
     
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    
     <link rel="stylesheet" href="style.css">
 </head>
-<body class="bg-dark-theme">
-
-    <div class="container mt-5">
+<body class="bg-dark-theme"> <div class="container mt-5 mb-5">
         <div class="row justify-content-center">
             <div class="col-lg-10 col-md-12">
 
                 <div class="card shadow-lg border-0 bg-card-dark">
                     
-                    <div class="card-header bg-primary-theme text-white text-center p-4">
+                    <div class="card-header bg-primary-theme text-center p-4">
                         <h1 class="h3 mb-0">🤖 Clasificator: Roboți vs. Oameni 👩‍🚀</h1>
                     </div>
                     
                     <div class="card-body p-4 p-md-5">
 
-                        <div class="row g-5 align-items-center">
+                        <div class="row g-5 align-items-start">
                             
                             <div class="col-md-6">
-                                <h3 class="h4 mb-3 text-light">Panou de Control</h3>
+                                <h3 class="h4 mb-3">Pasul 1: Încarcă o Imagine</h3>
 
                                 <div id="dropZone" class="drop-zone-container">
                                     <input class="form-control" type="file" id="imageUpload" accept="image/jpeg, image/png" hidden>
                                     <label for="imageUpload" class="drop-zone-label">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="currentColor" class="bi bi-cloud-arrow-up-fill" viewBox="0 0 16 16">
-                                            <path d="M8 2a5.53 5.53 0 0 0-3.594 1.342c-.766.66-1.321 1.52-1.464 2.383C1.266 6.095 0 7.555 0 9.318 0 11.366 1.708 13 3.781 13h8.906C14.502 13 16 11.52 16 9.773c0-1.636-1.242-2.969-2.834-3.194C12.923 3.999 10.69 2 8 2m2.354 5.146a.5.5 0 0 1-.708.708L8.5 6.707V10.5a.5.5 0 0 1-1 0V6.707L6.354 7.854a.5.5 0 1 1-.708-.708l2-2a.5.5 0 0 1 .708 0z"/>
-                                        </svg>
-                                        <span class="mt-3 fs-5">Trageți imaginea aici</span>
+                                        <i class="bi bi-cloud-arrow-up-fill"></i>
+                                        <span class="mt-3 fs-5 fw-bold">Trageți imaginea aici</span>
                                         <span class="fs-6 text-muted">sau faceți clic pentru a selecta</span>
                                     </label>
                                 </div>
 
                                 <div class="d-grid mt-4">
-                                    <button id="classifyBtn" class="btn btn-secondary-theme btn-lg">2. Clasifică Imaginea</button>
+                                    <button id="classifyBtn" class="btn btn-secondary-theme btn-lg">
+                                        Pasul 2: Clasifică Imaginea
+                                        <i class="bi bi-arrow-right-short ms-1"></i>
+                                    </button>
                                 </div>
                             </div>
 
                             <div class="col-md-6">
-                                <h3 class="h4 mb-3 text-light">Previzualizare & Rezultat</h3>
+                                <h3 class="h4 mb-3">Pasul 3: Vezi Rezultatul</h3>
 
-                                <div id="imagePreviewContainer" class="image-preview-container mb-4 text-center" style="display: none;">
-                                    <div class="scan-line"></div>
-                                    <img id="imagePreview" src="#" alt="Previzualizare" class="img-fluid rounded shadow-sm" />
-                                </div>
-                                <div id="noPreview" class="no-preview-box text-center">
+                                <div id="noPreview" class="no-preview-box">
                                     <span>Aștept imagine...</span>
                                 </div>
 
+                                <div id="imagePreviewContainer" class="image-preview-container mb-0 text-center" style="display: none;">
+                                    <div class="scan-line"></div>
+                                    <img id="imagePreview" src="#" alt="Previzualizare" class="img-fluid" />
+                                </div>
+                                
+                                <div id="progressContainer" class="progress-container" style="display: none;">
+                                    <div id="progressBar" class="progress-bar-custom"></div>
+                                </div>
+
+
                                 <div id="resultsArea" class="mt-4" style="display: none;">
-                                    <div id="resultBox" class="alert alert-info p-3 text-center">
-                                        <strong class="fs-4">
-                                            <span id="predictedClass">...</span>
-                                        </strong>
-                                        <br>
-                                        <span class="fs-6" id="confidence">...</span>
+                                    <div id="resultBox" class="result-box-custom">
+                                        
+                                        <div id="primaryResult" class="result-partition primary">
+                                            <span class="result-percentage" id="primaryPercentage">...</span>
+                                            <span class="result-label" id="primaryLabel">...</span>
+                                        </div>
+                                        
+                                        <div id="secondaryResult" class="result-partition secondary">
+                                            <span class="result-percentage" id="secondaryPercentage">...</span>
+                                            <span class="result-label" id="secondaryLabel">...</span>
+                                        </div>
+                                        
                                     </div>
                                 </div>
+                                
                             </div>
 
                         </div>
@@ -73,142 +87,180 @@
         </div>
     </div>
 
-<script>
-    // --- Selectăm elementele DOM o singură dată ---
-    const imageUpload = document.getElementById('imageUpload');
-    const previewContainer = document.getElementById('imagePreviewContainer');
-    const preview = document.getElementById('imagePreview');
-    const classifyBtn = document.getElementById('classifyBtn');
-    const resultsArea = document.getElementById('resultsArea');
-    const resultBox = document.getElementById('resultBox');
-    const predictedClassEl = document.getElementById('predictedClass');
-    const confidenceEl = document.getElementById('confidence');
-    
-    // --- Elemente noi pentru Drag & Drop și Preview ---
-    const dropZone = document.getElementById('dropZone');
-    const noPreview = document.getElementById('noPreview');
+    <script>
+        // --- Selectăm elementele DOM ---
+        const imageUpload = document.getElementById('imageUpload');
+        const previewContainer = document.getElementById('imagePreviewContainer');
+        const preview = document.getElementById('imagePreview');
+        const classifyBtn = document.getElementById('classifyBtn');
+        const dropZone = document.getElementById('dropZone');
+        const noPreview = document.getElementById('noPreview');
+        
+        // Elemente noi pentru progres și rezultate
+        const progressContainer = document.getElementById('progressContainer');
+        const progressBar = document.getElementById('progressBar');
+        const resultsArea = document.getElementById('resultsArea');
+        const resultBox = document.getElementById('resultBox');
+        const primaryPercentageEl = document.getElementById('primaryPercentage');
+        const primaryLabelEl = document.getElementById('primaryLabel');
+        const secondaryPercentageEl = document.getElementById('secondaryPercentage');
+        const secondaryLabelEl = document.getElementById('secondaryLabel');
+        
+        // Părțile din resultBox (pentru a le arăta/ascunde la eroare)
+        const primaryResultDiv = document.getElementById('primaryResult');
+        const secondaryResultDiv = document.getElementById('secondaryResult');
 
-    // --- Funcție centralizată pentru gestionarea fișierului ---
-    function handleFile(file) {
-        if (file && file.type.startsWith('image/')) {
-            const reader = new FileReader();
-            
-            reader.onload = function(e) {
-                preview.src = e.target.result;
-                previewContainer.style.display = 'block'; // Arată containerul de preview
-                noPreview.style.display = 'none'; // Ascunde placeholder-ul
+        const classifyBtnText = 'Pasul 2: Clasifică Imaginea <i class="bi bi-arrow-right-short ms-1"></i>';
+
+        // --- Funcție centralizată pentru gestionarea fișierului ---
+        function handleFile(file) {
+            if (file && file.type.startsWith('image/')) {
+                const reader = new FileReader();
                 
-                // Resetează rezultatele
-                resultsArea.style.display = 'none'; 
-                resultBox.classList.remove('alert-robot', 'alert-om', 'alert-eroare');
-                resultBox.classList.add('alert-info');
-            }
-            
-            reader.readAsDataURL(file);
+                reader.onload = function(e) {
+                    preview.src = e.target.result;
+                    previewContainer.style.display = 'block'; 
+                    noPreview.style.display = 'none'; 
+                    
+                    // Resetează rezultatele și progresul
+                    resultsArea.style.display = 'none'; 
+                    progressContainer.style.display = 'none';
+                    progressBar.style.animation = 'none';
+                    resultBox.classList.remove('result-robot', 'result-om', 'result-eroare');
+                }
+                
+                reader.readAsDataURL(file);
 
-            // --- TRUC: Asignăm fișierul la input-ul original ---
-            // Acest lucru asigură că logica butonului "classifyBtn" 
-            // funcționează fără modificări, indiferent dacă
-            // fișierul vine din clic sau din drag-and-drop.
-            const dataTransfer = new DataTransfer();
-            dataTransfer.items.add(file);
-            imageUpload.files = dataTransfer.files;
+                const dataTransfer = new DataTransfer();
+                dataTransfer.items.add(file);
+                imageUpload.files = dataTransfer.files;
 
-        } else {
-            alert('Vă rugăm să alegeți un fișier de tip imagine (jpeg, png).');
-        }
-    }
-
-    // --- 1. Logica pentru Drag & Drop ---
-    dropZone.addEventListener('dragover', (event) => {
-        event.preventDefault(); // Necesar pentru a permite drop
-        dropZone.classList.add('drag-over');
-    });
-
-    dropZone.addEventListener('dragleave', () => {
-        dropZone.classList.remove('drag-over');
-    });
-
-    dropZone.addEventListener('drop', (event) => {
-        event.preventDefault();
-        dropZone.classList.remove('drag-over');
-        
-        const file = event.dataTransfer.files[0];
-        handleFile(file);
-    });
-
-    // --- 2. Logica pentru input-ul de fișier (la clic) ---
-    imageUpload.addEventListener('change', (event) => {
-        const file = event.target.files[0];
-        handleFile(file);
-    });
-
-    // --- 3. Logica pentru trimiterea imaginii la backend (API Fetch) ---
-    // (Modificată pentru a include animația de scanare)
-    classifyBtn.addEventListener('click', async function() {
-        
-        const file = imageUpload.files[0];
-
-        if (!file) {
-            alert('Vă rugăm să alegeți o imagine mai întâi.');
-            return;
-        }
-
-        const formData = new FormData();
-        formData.append('file', file);
-
-        // Afișăm un status de "loading" și dezactivăm butonul
-        classifyBtn.disabled = true;
-        classifyBtn.textContent = 'Se clasifică...';
-        resultsArea.style.display = 'none';
-        resultBox.classList.remove('alert-robot', 'alert-om', 'alert-eroare');
-        resultBox.classList.add('alert-info');
-
-        // --- START ANIMAȚIE SCANARE ---
-        previewContainer.classList.add('is-scanning');
-
-        try {
-            const response = await fetch('/predict', {
-                method: 'POST',
-                body: formData
-            });
-
-            const data = await response.json();
-
-            if (data.error) {
-                throw new Error(data.error);
-            }
-
-            // Afișăm rezultatul
-            predictedClassEl.textContent = data.predicted_class;
-            confidenceEl.textContent = `Confidență: ${(data.confidence * 100).toFixed(2)}%`;
-            
-            resultBox.classList.remove('alert-info');
-            if (data.predicted_class === 'robot') {
-                resultBox.classList.add('alert-robot');
             } else {
-                resultBox.classList.add('alert-om');
+                alert('Vă rugăm să alegeți un fișier de tip imagine (jpeg, png).');
             }
-            resultsArea.style.display = 'block';
-
-        } catch (error) {
-            console.error('Eroare la clasificare:', error);
-            predictedClassEl.textContent = 'Eroare';
-            confidenceEl.textContent = error.message;
-            
-            resultBox.classList.remove('alert-info');
-            resultBox.classList.add('alert-eroare');
-            resultsArea.style.display = 'block';
-        
-        } finally {
-            // Reactivăm butonul
-            classifyBtn.disabled = false;
-            classifyBtn.textContent = '2. Clasifică Imaginea';
-
-            // --- STOP ANIMAȚIE SCANARE ---
-            previewContainer.classList.remove('is-scanning');
         }
-    });
-</script>
+
+        // --- 1. Logica pentru Drag & Drop ---
+        dropZone.addEventListener('dragover', (event) => {
+            event.preventDefault();
+            dropZone.classList.add('drag-over');
+        });
+
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('drag-over');
+        });
+
+        dropZone.addEventListener('drop', (event) => {
+            event.preventDefault();
+            dropZone.classList.remove('drag-over');
+            const file = event.dataTransfer.files[0];
+            handleFile(file);
+        });
+
+        // --- 2. Logica pentru input-ul de fișier (la clic) ---
+        imageUpload.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            handleFile(file);
+        });
+
+        // --- 3. Logica pentru trimiterea imaginii la backend (API Fetch) ---
+        classifyBtn.addEventListener('click', async function() {
+            
+            const file = imageUpload.files[0];
+
+            if (!file) {
+                alert('Vă rugăm să alegeți o imagine mai întâi.');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            // Afișăm un status de "loading"
+            classifyBtn.disabled = true;
+            classifyBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Se clasifică...';
+            
+            resultsArea.style.display = 'none';
+            resultBox.classList.remove('result-robot', 'result-om', 'result-eroare');
+
+            // --- START ANIMAȚII (Scanare + Bară progres) ---
+            previewContainer.classList.add('is-scanning');
+            progressContainer.style.display = 'block';
+            
+            // Resetăm și pornim animația barei de progres
+            // Durata (2.5s) este aceeași cu cea a liniei de scanare
+            progressBar.style.animation = 'none'; 
+            progressBar.offsetHeight; // Truc pentru a forța reflow
+            progressBar.style.animation = 'fillBar 2.5s ease-out forwards';
+
+
+            try {
+                const response = await fetch('/predict', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+
+                // --- POPULĂM NOUL FORMAT DE REZULTAT ---
+                const confidencePercent = data.confidence * 100;
+                const otherPercent = 100 - confidencePercent;
+                const predictedClass = data.predicted_class.toLowerCase();
+
+                // Asigurăm vizibilitatea ambelor părți
+                primaryResultDiv.style.display = 'block';
+                secondaryResultDiv.style.display = 'flex'; // 'flex' e stilul implicit
+
+                if (predictedClass === 'robot') {
+                    primaryPercentageEl.textContent = `${confidencePercent.toFixed(1)}%`;
+                    primaryLabelEl.textContent = 'Robot';
+                    secondaryPercentageEl.textContent = `${otherPercent.toFixed(1)}%`;
+                    secondaryLabelEl.textContent = 'Om';
+                    resultBox.classList.add('result-robot');
+                } else {
+                    primaryPercentageEl.textContent = `${confidencePercent.toFixed(1)}%`;
+                    primaryLabelEl.textContent = 'Om';
+                    secondaryPercentageEl.textContent = `${otherPercent.toFixed(1)}%`;
+                    secondaryLabelEl.textContent = 'Robot';
+                    resultBox.classList.add('result-om');
+                }
+                
+                resultsArea.style.display = 'block';
+
+            } catch (error) {
+                console.error('Eroare la clasificare:', error);
+                
+                // --- AFIȘARE EROARE ÎN NOUL FORMAT ---
+                primaryPercentageEl.textContent = 'Eroare';
+                primaryLabelEl.textContent = error.message;
+                
+                // Ascundem partea secundară la eroare
+                primaryResultDiv.style.display = 'block';
+                secondaryResultDiv.style.display = 'none';
+
+                resultBox.classList.add('result-eroare');
+                resultsArea.style.display = 'block';
+            
+            } finally {
+                // Reactivăm butonul
+                classifyBtn.disabled = false;
+                classifyBtn.innerHTML = classifyBtnText;
+
+                // --- STOP ANIMAȚIE SCANARE ---
+                previewContainer.classList.remove('is-scanning');
+                
+                // Ascundem bara de progres după o scurtă întârziere
+                // pentru a ne asigura că utilizatorul o vede "plină"
+                setTimeout(() => {
+                    progressContainer.style.display = 'none';
+                    progressBar.style.animation = 'none'; // Reset
+                }, 500); 
+            }
+        });
+    </script>
 </body>
 </html>
