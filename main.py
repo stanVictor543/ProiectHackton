@@ -108,21 +108,12 @@ with torch.no_grad():
 acc = 100 * correct / total
 print(f"Custom Acc: {acc:.2f}%")
 
-def generate_token(seed_str):
-    h = hashlib.sha256(seed_str.encode()).hexdigest()
-    return f"CV_TOKEN_{h[:8].upper()}"
-
 if acc > 92:
     # --- 5. MODIFICARE: Salvarea modelului ---
     model_save_path = "model.pt"
     torch.save(net.state_dict(), model_save_path)
     print(f"--- Model salvat cu succes ca '{model_save_path}' ---")
     
-    token_seed = f"{acc:.2f}-{len(trainset)}"
-    token = generate_token(token_seed)
-    print(f" Token generat: {token}")
-    with open("token_stage2.txt", "w) as f:
-        f.write(token)
 else:
     print(f"Acuratețea de {acc:.2f}% este sub pragul de 92%.")
     print(" Overfit Lock - Încearcă să rulezi din nou sau să ajustezi modelul.")
