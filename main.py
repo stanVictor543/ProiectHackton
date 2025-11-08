@@ -8,7 +8,7 @@ import hashlib
 import os
 
 # --- 1. MODIFICARE: Transformări pentru ImageFolder (3 canale, 64x64) ---
-IMG_SIZE = 64 # 64x64 este un echilibru bun pentru un model simplu pe CPU
+IMG_SIZE = 128 # 64x64 este un echilibru bun pentru un model simplu pe CPU
 
 transform_train = transforms.Compose([
     transforms.Resize((IMG_SIZE, IMG_SIZE)), # Imagini non-MNIST au dimensiuni diferite
@@ -27,7 +27,7 @@ transform_test = transforms.Compose([
 ])
 
 # --- 2. MODIFICARE: Încărcare date din ImageFolder ---
-data_dir = 'D:\hrp\images'
+data_dir = 'D:\data'
 try:
     trainset = datasets.ImageFolder(os.path.join(data_dir, 'train'), transform=transform_train)
     trainloader = torch.utils.data.DataLoader(trainset, batch_size=64, shuffle=True)
@@ -79,7 +79,10 @@ num_epochs = 5 # 3 epoci e posibil să fie prea puțin
 print("--- Începe antrenamentul ---")
 # MODIFICAT (CORECTURĂ): Trecem modelul în modul de antrenare
 net.train() 
+i = 0
 for epoch in range(num_epochs):
+    i = i + 1
+    print(i)
     running_loss = 0.0
     for images, labels in trainloader:
         out = net(images)
