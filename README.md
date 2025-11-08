@@ -1,70 +1,79 @@
-# Clasificator binar de imagini roboti-oameni
+# 🤖 Clasificator Binar Imagini: Roboti vs. Oameni
 
+## 📖 Prezentare Generală
 
-## Prezentare generala
-Am primit task-ul de a clasifica imagini cu oameni si roboti folosind o arhitectura de tipul Convolutional Neural Network (CNN).
+Acest proiect prezintă dezvoltarea unui clasificator binar de imagini capabil să facă distincția între imagini cu oameni și imagini cu roboți. Soluția utilizează o arhitectură de tip **Convolutional Neural Network (CNN)**.
 
-Primul pas a fost colectarea seturilor de date pentru antrenare.
+Proiectul a fost dezvoltat în patru etape principale:
+1.  **Colectarea și Pregătirea Datelor:** Agregarea și procesarea seturilor de date.
+2.  **Antrenarea Modelului:** Dezvoltarea și antrenarea modelului CNN folosind PyTorch.
+3.  **Aplicație FullStack:** Crearea unei interfețe web pentru interacțiunea cu modelul.
+4.  **Evaluare:** Analiza rezultatelor și identificarea pașilor următori.
 
-Apoi a urmat antrenarea modelului pe datele obtinute folosind libraria pytorch.
+---
 
-Ultimul pas a fost conectarea modelului la o interfata a unei aplicatii FullStack.
+## 📊 Pregătirea Datelor
 
-## Pregatirea datelor
-Am folosit doua set-uri de date publice:
+### Seturi de Date Utilizate
 
-### Data Set pentru Roboti
-[Humanoid Robot Pose Estimation](https://github.com/AIS-Bonn/HumanoidRobotPoseEstimation?tab=readme-ov-file)
+Am fost folosite două seturi de date publice pentru antrenarea modelului:
 
-### Data Set pentru Oameni
-[Leeds-Sport pose)](https://www.kaggle.com/datasets/dkrivosic/leeds-sports-pose-lsp)
+* **Roboți:** [Humanoid Robot Pose Estimation](https://github.com/AIS-Bonn/HumanoidRobotPoseEstimation?tab=readme-ov-file)
+* **Oameni:** [Leeds-Sport pose (LSP)](https://www.kaggle.com/datasets/dkrivosic/leeds-sports-pose-lsp)
 
-Pentru organizarea imaginilor in fisiere am folosit un script python (PhotoScripts/organize.py)
+Script-ul `PhotoScripts/organize.py` a fost utilizat pentru a structura imaginile în directoarele necesare.
 
-Numarul de imagini cu roboti nu a fost suficient pentru model, asa ca am creat imagini noi prelucrand imaginile originale.
+### Augmentarea Datelor
 
-Pentru prelucrare am aplicat filtre de image cropping, image flipping, grayscale.
+Deoarece setul de date pentru roboți a fost insuficient din punct de vedere numeric, am aplicat tehnici de augmentare pentru a mări volumul de date de antrenare.
 
-Script-ul folosit pentru asta a fost PhotoScripts/editing.py.
+Tehnicile aplicate (folosind `PhotoScripts/editing.py`):
+* Image Cropping (Decupare)
+* Image Flipping (Oglindire)
+* Grayscale (Conversie alb-negru)
 
-## Antrenarea modelului 
+---
 
-Am ales sa folosim libraria pytorch impreuna cu torchvision.
+## 🧠 Antrenarea Modelului
 
-Modelul se antreneaza cu un learning rate de 0.01, folosind optimizatorul "Adam".
+Modelul a fost dezvoltat folosind **PyTorch** împreună cu biblioteca **Torchvision**.
 
-Antrenarea dureaza 10 epoci.
+### Hiperparametrii
 
-## Aplicatia
+* **Arhitectură:** Convolutional Neural Network (CNN)
+* **Optimizator:** Adam
+* **Rata de învățare (Learning Rate):** 0.001
+* **Număr Epoci:** 10
 
-Pentru interactiunea cu modelul, am construit o aplicatie web fullstack.
+---
 
-Am folosit urmatoarele tehnologii:
+## 🖥️ Aplicația Web
 
-Frontend vanilla cu html si CSS.
- 
-Backend in Python (flask), baza de date SQLite.
+Pentru a demonstra funcționalitatea modelului, a fost creată o aplicație web FullStack care permite utilizatorilor să încarce o imagine și să primească o clasificare.
 
-## Rezultate si posibile imbunatatiri
+### Tehnologii Utilizate
 
-Am obtinut un MVP care clasifica binar oamenii si robotii.
+* **Frontend:** HTML, CSS și JavaScript (Vanilla)
+* **Backend:** Python (Flask)
+* **Bază de date:** SQLite
 
-Tehnologiile pe care le-am folosit si volumul de date au fost influentate de perioada mica de timp pe care am avut-o la dispozitie pentru a finaliza prototipul (doar 10 ore).
+---
 
-Daca am fi avut mai mult timp:
+## 📈 Rezultate și Îmbunătățiri Viitoare
 
--am fi marit volumul de antrenare al modelului
+Proiectul a atins cu succes stadiul de **Minimum Viable Product (MVP)**, oferind un clasificator funcțional.
 
--am fi folosit libraria Keras in loc de pytorch
+> **Context:** Întregul prototip a fost finalizat într-un interval de timp limitat de **10 ore**. Acest constrângere a influențat alegerea tehnologiilor și volumul de date utilizat.
 
--adaugare si colectare de imagini extra
+### Direcții Viitoare
 
--alegerea unui framework de javascript (React, VueJS, Angular)
+Având la dispoziție mai mult timp, următoarele îmbunătățiri ar putea fi implementate:
 
--un backend mai robust (.NET)
-
--o baza de date care sa nu foloseasca arhitectura serverless
-
- 
-
-
+* **Model și Date:**
+    * Mărirea considerabilă a setului de date de antrenare.
+    * Colectarea de imagini suplimentare din surse variate.
+    * Explorarea altor framework-uri (de exemplu, Keras/TensorFlow).
+* **Stack Tehnologic:**
+    * **Frontend:** Adoptarea unui framework JavaScript modern (React, Vue.js sau Angular) pentru o interfață mai interactivă.
+    * **Backend:** Migrarea către o soluție mai robustă și scalabilă (de exemplu, .NET sau Django).
+    * **Bază de date:** Înlocuirea SQLite (serverless) cu o soluție client-server (de exemplu, PostgreSQL sau MySQL).
