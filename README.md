@@ -4,7 +4,7 @@
 [Humanoid Robot Pose Estimation](https://github.com/AIS-Bonn/HumanoidRobotPoseEstimation?tab=readme-ov-file)
 
 ## Humans
-[COCO Humans Dataset (5k)](https://cocodataset.org/#download)
+[Leeds-Sport pose)](https://www.kaggle.com/datasets/dkrivosic/leeds-sports-pose-lsp)
 
 # Aplicatia
 
