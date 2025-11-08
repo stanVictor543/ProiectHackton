@@ -88,7 +88,7 @@ if __name__ == '__main__':
     criterion = nn.CrossEntropyLoss(weight=weights)
     optimizer = optim.Adam(net.fc.parameters(), lr=0.001) 
     scheduler = lr_scheduler.StepLR(optimizer, step_size=7, gamma=0.1)
-    num_epochs = 10
+    num_epochs = 20
 
     print("--- Începe antrenamentul (se antrenează doar ultimul strat) ---")
 

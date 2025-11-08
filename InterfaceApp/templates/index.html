@@ -54,13 +54,20 @@
         
         /* Ajustare stil pentru a se potrivi cu celelalte elemente */
         .bg-card-dark {
-            /* Presupunând că această clasă setează culorile de fundal */
-            background-color: #343a40; /* Înlocuiește cu culoarea ta reală de fundal */
-            color: #f8f9fa; /* Text deschis */
+            background-color: #343a40; 
+            color: #f8f9fa; 
         }
         .bg-dark-theme {
-             /* Presupunând că această clasă setează culorile de fundal */
             background-color: #212529;
+        }
+
+        /* STILURILE PENTRU ANIMAȚIE AU FOST ELIMINATE */
+
+        /* Ascunde containerul de animație inițial */
+        #animationWrapper {
+            display: none;
+            flex-direction: column; /* Pentru a alinia animația și textul rezultat */
+            align-items: center;
         }
     </style>
 </head>
@@ -140,25 +147,26 @@
                                     <div id="progressBar" class="progress-bar-custom"></div>
                                 </div>
 
-
-                                <div id="resultsArea" class="mt-4" style="display: none;">
-                                    <div id="resultBox" class="result-box-custom">
-                                        
-                                        <div id="primaryResult" class="result-partition primary">
-                                            <span class="result-percentage" id="primaryPercentage">...</span>
-                                            <span class="result-label" id="primaryLabel">...</span>
+                                <div id="animationWrapper" class="mt-4">
+                                    <div id="resultsArea" class="mt-4">
+                                        <div id="resultBox" class="result-box-custom">
+                                            
+                                            <div id="primaryResult" class="result-partition primary">
+                                                <span class="result-percentage" id="primaryPercentage">...</span>
+                                                <span class="result-label" id="primaryLabel">...</span>
+                                            </div>
+                                            
+                                            <div id="secondaryResult" class="result-partition secondary">
+                                                <span class="result-percentage" id="secondaryPercentage">...</span>
+                                                <span class="result-label" id="secondaryLabel">...</span>
+                                            </div>
+                                            
                                         </div>
-                                        
-                                        <div id="secondaryResult" class="result-partition secondary">
-                                            <span class="result-percentage" id="secondaryPercentage">...</span>
-                                            <span class="result-label" id="secondaryLabel">...</span>
-                                        </div>
-                                        
                                     </div>
                                 </div>
                                 
                             </div>
-                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -185,7 +193,7 @@
         // Elemente pentru progres și rezultate (restul codului existent)
         const progressContainer = document.getElementById('progressContainer');
         const progressBar = document.getElementById('progressBar');
-        const resultsArea = document.getElementById('resultsArea');
+        const resultsArea = document.getElementById('resultsArea'); // Acum în interiorul animationWrapper
         const resultBox = document.getElementById('resultBox');
         const primaryPercentageEl = document.getElementById('primaryPercentage');
         const primaryLabelEl = document.getElementById('primaryLabel');
@@ -193,6 +201,9 @@
         const secondaryLabelEl = document.getElementById('secondaryLabel');
         const primaryResultDiv = document.getElementById('primaryResult');
         const secondaryResultDiv = document.getElementById('secondaryResult');
+
+        const animationWrapper = document.getElementById('animationWrapper'); // NOU
+        // animationContainer a fost eliminat
 
         const classifyBtnText = 'Pasul 2: Clasifică Imaginea <i class="bi bi-arrow-right-short ms-1"></i>';
 
@@ -206,11 +217,13 @@
                     previewContainer.style.display = 'block'; 
                     noPreview.style.display = 'none'; 
                     
-                    // Resetează rezultatele și progresul
+                    // Resetează rezultatele, progresul și animația
+                    animationWrapper.style.display = 'none'; // NOU
                     resultsArea.style.display = 'none'; 
                     progressContainer.style.display = 'none';
                     progressBar.style.animation = 'none';
                     resultBox.classList.remove('result-robot', 'result-om', 'result-eroare');
+                    // animationContainer.innerHTML = ''; // Eliminat
                 }
                 
                 reader.readAsDataURL(file);
@@ -329,6 +342,8 @@
             }, 'image/png');
         });
 
+        // --- Funcția pentru a crea și anima SVG-urile (ELIMINATĂ) ---
+
         // --- 4. Logica pentru trimiterea imaginii la backend (API Fetch) - RESTUL CODULUI RĂMÂNE IDENTIC CU CEL DAT DE TINE ---
         classifyBtn.addEventListener('click', async function() {
             
@@ -346,6 +361,7 @@
             classifyBtn.disabled = true;
             classifyBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Se clasifică...';
             
+            animationWrapper.style.display = 'none'; // Ascunde animația veche
             resultsArea.style.display = 'none';
             resultBox.classList.remove('result-robot', 'result-om', 'result-eroare');
 
@@ -393,7 +409,10 @@
                     resultBox.classList.add('result-om');
                 }
                 
+                // DUPĂ ce rezultatele sunt setate, afișăm
+                animationWrapper.style.display = 'flex'; // Afișează containerul (acum doar cu rezultate)
                 resultsArea.style.display = 'block';
+                // Apelul funcției de animație a fost eliminat
 
             } catch (error) {
                 console.error('Eroare la clasificare:', error);
