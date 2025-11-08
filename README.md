@@ -16,9 +16,11 @@ Proiectul a fost dezvoltat în patru etape principale:
 
 ### Seturi de Date Utilizate
 
-Am fost folosite două seturi de date publice pentru antrenarea modelului:
+Am fost folosite seturi de date publice pentru antrenarea modelului:
 
-* **Roboți:** [Humanoid Robot Pose Estimation](https://github.com/AIS-Bonn/HumanoidRobotPoseEstimation?tab=readme-ov-file)
+* **Roboți:**
+* [Humanoid Robot Pose Estimation](https://github.com/AIS-Bonn/HumanoidRobotPoseEstimation?tab=readme-ov-file)
+* Poze cu robotii de la Hackathon!
 * **Oameni:**
     * [Leeds-Sport pose (LSP)](https://www.kaggle.com/datasets/dkrivosic/leeds-sports-pose-lsp)
     * [Human Images Dataset - Men and Women](https://www.kaggle.com/datasets/snmahsa/human-images-dataset-men-and-women)
@@ -48,7 +50,7 @@ Modelul a fost dezvoltat folosind **PyTorch** împreună cu biblioteca **Torchvi
 * **Optimizator:** `Adam` (aplicat doar pe parametrii stratului final).
 * **Rata de învățare (Learning Rate):** 0.001
 * **LR Scheduler:** `StepLR` (rata de învățare este redusă automat în timpul antrenamentului).
-* **Număr Epoci:** 25
+* **Număr Epoci:** 20
 
 ---
 
