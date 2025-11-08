@@ -7,11 +7,13 @@ from torchvision import transforms, datasets
 import hashlib
 import os
 
-# --- 1. MODIFICARE: Transformări pentru ImageFolder (3 canale, 64x64) ---
-IMG_SIZE = 128 # 64x64 este un echilibru bun pentru un model simplu pe CPU
+# --- 1. MODIFICARE: Transformări pentru ImageFolder (3 canale) ---
+# Poți schimba această valoare (ex: 64, 128, 224)
+# Rețeaua de mai jos se va adapta automat.
+IMG_SIZE = 128 # Am setat 128 ca exemplu, care probabil a cauzat eroarea
 
 transform_train = transforms.Compose([
-    transforms.Resize((IMG_SIZE, IMG_SIZE)), # Imagini non-MNIST au dimensiuni diferite
+    transforms.Resize((IMG_SIZE, IMG_SIZE)), # Redimensionează orice imagine
     transforms.ToTensor(),
     transforms.RandomRotation(10),
     # Normalizare pentru 3 canale (RGB)
@@ -27,7 +29,9 @@ transform_test = transforms.Compose([
 ])
 
 # --- 2. MODIFICARE: Încărcare date din ImageFolder ---
-data_dir = 'D:\data'
+# Folosirea r'...' previne erorile de cale pe Windows
+data_dir = r'D:\data' 
+
 try:
     trainset = datasets.ImageFolder(os.path.join(data_dir, 'train'), transform=transform_train)
     trainloader = torch.utils.data.DataLoader(trainset, batch_size=64, shuffle=True)
@@ -43,32 +47,54 @@ except FileNotFoundError:
     print(f"EROARE: Nu am găsit folderele 'train' sau 'test' în interiorul '{data_dir}'")
     exit()
 
-# --- 3. MODIFICARE: Arhitectura CNN ---
+# --- 3. MODIFICARE: Arhitectura CNN (Varianta Robustă) ---
 class CVNet(nn.Module):
-    def __init__(self, num_classes): # Adăugat num_classes
+    def __init__(self, num_classes):
         super().__init__()
-        # MODIFICAT: 3 canale de intrare (RGB) în loc de 1
-        self.conv1 = nn.Conv2d(3, 32, 3) 
-        self.pool = nn.MaxPool2d(2, 2)
-        # MODIFICAT (CORECTURĂ): 0.8 era prea mult, bloca învățarea
-        self.dropout = nn.Dropout(0.5) 
         
-        # MODIFICAT: Calculul dimensiunii de intrare
-        # Input 64x64 -> Conv(3) -> 62x62 -> Pool(2) -> 31x31
-        self.fc_input_size = 32 * 31 * 31 
+        # --- Partea de "extragere a caracteristicilor" (convoluție) ---
+        # Definim straturile care procesează imaginea
+        self.features = nn.Sequential(
+            nn.Conv2d(3, 32, 3), # 3 canale RGB, 32 filtre, kernel 3x3
+            nn.ReLU(),
+            nn.MaxPool2d(2, 2), # Înjumătățește dimensiunea
+            nn.Dropout(0.5)     # Dropout-ul original
+        )
         
-        # MODIFICAT: num_classes (2) ieșiri în loc de 10
-        self.fc1 = nn.Linear(self.fc_input_size, num_classes) 
+        # --- Calcul automat al dimensiunii (Soluția la eroarea ta) ---
+        # 1. Creăm un tensor "fals" cu dimensiunile inputului
+        #    (1 imagine, 3 canale, IMG_SIZE, IMG_SIZE)
+        dummy_input = torch.randn(1, 3, IMG_SIZE, IMG_SIZE)
+        
+        # 2. Trecem tensorul fals prin straturile de convoluție
+        dummy_output = self.features(dummy_input)
+        
+        # 3. Aflăm dimensiunea aplatizată (flattened)
+        #    ex: (1, 32, 63, 63) -> (1, 127008) -> 127008
+        #    .view(1, -1) îl aplatizează, .shape[1] ia mărimea
+        flattened_size = dummy_output.view(1, -1).shape[1]
+        
+        print(f"Dimensiunea de intrare pentru FC calculată automat: {flattened_size}")
+        
+        # --- Partea de "clasificare" (complet conectată) ---
+        self.classifier = nn.Sequential(
+            # 4. Acum folosim dimensiunea corectă, calculată automat
+            nn.Linear(flattened_size, num_classes)
+        )
 
     def forward(self, x):
-        x = torch.relu(self.conv1(x))
-        x = self.pool(x)
-        x = self.dropout(x)
-        # MODIFICAT: Dimensiunea de aplatizare
-        x = x.view(-1, self.fc_input_size) 
-        x = self.fc1(x)
+        # 1. Trece prin convoluții
+        x = self.features(x)
+        
+        # 2. Aplatizează (flatten) pentru stratul Linear
+        #    x.size(0) este batch_size. Acesta este modul robust de a aplatiza.
+        x = x.view(x.size(0), -1) 
+        
+        # 3. Trece prin clasificator
+        x = self.classifier(x)
         return x
 
+# --- Inițializare model și antrenament ---
 net = CVNet(num_classes=num_classes)
 criterion = nn.CrossEntropyLoss()
 # MODIFICAT (CORECTURĂ): 0.01 este prea mare pentru Adam, 0.001 e mai stabil
@@ -111,12 +137,13 @@ with torch.no_grad():
 acc = 100 * correct / total
 print(f"Custom Acc: {acc:.2f}%")
 
+# --- 5. MODIFICARE: Salvarea modelului ---
 if acc > 10:
-    # --- 5. MODIFICARE: Salvarea modelului ---
     model_save_path = "model.pt"
     torch.save(net.state_dict(), model_save_path)
     print(f"--- Model salvat cu succes ca '{model_save_path}' ---")
     
 else:
-    print(f"Acuratețea de {acc:.2f}% este sub pragul de 92%.")
+    # Am corectat comentariul să reflecte codul (10%)
+    print(f"Acuratețea de {acc:.2f}% este sub pragul de 10%.")
     print(" Overfit Lock - Încearcă să rulezi din nou sau să ajustezi modelul.")
