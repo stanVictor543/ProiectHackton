@@ -2,11 +2,11 @@
 
 ## 📖 Prezentare Generală
 
-Acest proiect prezintă dezvoltarea unui clasificator binar de imagini capabil să facă distincția între imagini cu oameni și imagini cu roboți. Soluția utilizează o arhitectură de tip **Convolutional Neural Network (CNN)**.
+Acest proiect prezintă dezvoltarea unui clasificator binar de imagini capabil să facă distincția între imagini cu oameni și imagini cu roboți. Soluția utilizează o arhitectură de tip **Transfer Learning**, bazată pe modelul **ResNet18** pre-antrenat.
 
 Proiectul a fost dezvoltat în patru etape principale:
 1.  **Colectarea și Pregătirea Datelor:** Agregarea și procesarea seturilor de date.
-2.  **Antrenarea Modelului:** Dezvoltarea și antrenarea modelului CNN folosind PyTorch.
+2.  **Antrenarea Modelului:** Dezvoltarea și antrenarea modelului folosind PyTorch.
 3.  **Aplicație FullStack:** Crearea unei interfețe web pentru interacțiunea cu modelul.
 4.  **Evaluare:** Analiza rezultatelor și identificarea pașilor următori.
 
@@ -19,7 +19,9 @@ Proiectul a fost dezvoltat în patru etape principale:
 Am fost folosite două seturi de date publice pentru antrenarea modelului:
 
 * **Roboți:** [Humanoid Robot Pose Estimation](https://github.com/AIS-Bonn/HumanoidRobotPoseEstimation?tab=readme-ov-file)
-* **Oameni:** [Leeds-Sport pose (LSP)](https://www.kaggle.com/datasets/dkrivosic/leeds-sports-pose-lsp)
+* **Oameni:**
+    * [Leeds-Sport pose (LSP)](https://www.kaggle.com/datasets/dkrivosic/leeds-sports-pose-lsp)
+    * [Human Images Dataset - Men and Women](https://www.kaggle.com/datasets/snmahsa/human-images-dataset-men-and-women)
 
 Script-ul `PhotoScripts/organize.py` a fost utilizat pentru a structura imaginile în directoarele necesare.
 
@@ -38,12 +40,15 @@ Tehnicile aplicate (folosind `PhotoScripts/editing.py`):
 
 Modelul a fost dezvoltat folosind **PyTorch** împreună cu biblioteca **Torchvision**.
 
-### Hiperparametrii
+### Arhitectură și Hiperparametri
 
-* **Arhitectură:** Convolutional Neural Network (CNN)
-* **Optimizator:** Adam
+* **Model:** Se folosește **Transfer Learning** cu modelul **ResNet18**, pre-antrenat pe setul de date ImageNet.
+* **Strategie:** Straturile convoluționale (de extragere a caracteristicilor) ale ResNet18 au fost "înghețate" (frozen). S-a antrenat *doar* ultimul strat de clasificare (fully-connected layer), care a fost adaptat pentru cele 2 clase ale noastre (oameni vs. roboți).
+* **Funcție de Pierdere (Loss):** `CrossEntropyLoss` cu **ponderare automată** (calculată pe baza distribuției claselor) pentru a contracara dezechilibrul setului de date.
+* **Optimizator:** `Adam` (aplicat doar pe parametrii stratului final).
 * **Rata de învățare (Learning Rate):** 0.001
-* **Număr Epoci:** 10
+* **LR Scheduler:** `StepLR` (rata de învățare este redusă automat în timpul antrenamentului).
+* **Număr Epoci:** 25
 
 ---
 
@@ -56,6 +61,7 @@ Pentru a demonstra funcționalitatea modelului, a fost creată o aplicație web 
 * **Frontend:** HTML, CSS și JavaScript (Vanilla)
 * **Backend:** Python (Flask)
 * **Bază de date:** SQLite
+* **Particularități:** Folosirea live a camerei
 
 ---
 
@@ -73,6 +79,7 @@ Având la dispoziție mai mult timp, următoarele îmbunătățiri ar putea fi i
     * Mărirea considerabilă a setului de date de antrenare.
     * Colectarea de imagini suplimentare din surse variate.
     * Explorarea altor framework-uri (de exemplu, Keras/TensorFlow).
+    * **Fine-tuning:** "Dezghețarea" mai multor straturi din ResNet18 pentru a antrena o parte mai mare a rețelei (acum că validarea inițială a funcționat).
 * **Stack Tehnologic:**
     * **Frontend:** Adoptarea unui framework JavaScript modern (React, Vue.js sau Angular) pentru o interfață mai interactivă.
     * **Backend:** Migrarea către o soluție mai robustă și scalabilă (de exemplu, .NET sau Django).

@@ -1,0 +1,170 @@
+:root{
+    --bg-dark: #120826; /* deep purple */
+    --bg-dark-2: #241033;
+    --card-bg: #1b0f2a;
+    --accent-turq: #20e1c9; /* turquoise */
+    --accent-turq-2: #00bfb3;
+    --muted: #9fbfb8;
+    --text: #e6f7f5;
+    --danger: #ff6b6b;
+}
+
+/* Page background */
+body.bg-dark-theme{
+    background: linear-gradient(135deg, var(--bg-dark) 0%, var(--bg-dark-2) 100%);
+    color: var(--text);
+    min-height: 100vh;
+}
+
+/* Card backgrounds */
+.bg-card-dark{
+    background-color: var(--card-bg) !important;
+    color: var(--text) !important;
+}
+
+/* Header / primary accent */
+.bg-primary-theme{
+    background: linear-gradient(90deg, rgba(32,225,201,0.12), rgba(106,63,172,0.06));
+    border-bottom: 1px solid rgba(32,225,201,0.08);
+    color: var(--text);
+}
+
+/* Buttons */
+.btn-secondary-theme{
+    background: linear-gradient(90deg, var(--accent-turq), var(--accent-turq-2));
+    color: #02120f;
+    border: none;
+}
+.btn-secondary-theme:hover{
+    filter: brightness(0.95);
+}
+
+/* Drop zone */
+.drop-zone-container{
+    border: 2px dashed rgba(255,255,255,0.06);
+    background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.0));
+    padding: 28px;
+    border-radius: 12px;
+    text-align: center;
+}
+.drop-zone-container.drag-over{
+    box-shadow: 0 6px 24px rgba(0,0,0,0.6), 0 0 0 6px rgba(32,225,201,0.06) inset;
+    border-color: rgba(32,225,201,0.6);
+}
+.drop-zone-label{
+    display: inline-block;
+    cursor: pointer;
+    color: var(--text);
+}
+
+/* Empty preview */
+.no-preview-box{
+    border: 1px dashed rgba(255,255,255,0.04);
+    padding: 42px;
+    border-radius: 10px;
+    color: var(--muted);
+    background: rgba(255,255,255,0.01);
+    text-align: center;
+}
+
+/* Image preview and scanning line */
+.image-preview-container{
+    position: relative;
+    border-radius: 8px;
+    overflow: hidden;
+    background: rgba(0,0,0,0.12);
+    padding: 8px;
+}
+.image-preview-container img{
+    border-radius: 6px;
+    max-height: 420px;
+    display: block;
+    margin: 0 auto;
+}
+.scan-line{
+    position: absolute;
+    top: -8px;
+    left: 0;
+    right: 0;
+    height: 6px;
+    background: linear-gradient(90deg, transparent, rgba(32,225,201,0.35), transparent);
+    transform: translateY(-100%);
+}
+.image-preview-container.is-scanning .scan-line{
+    animation: scan 2.5s linear infinite;
+}
+@keyframes scan{
+    0%{ transform: translateY(-100%); }
+    50%{ transform: translateY(100%); }
+    100%{ transform: translateY(-100%); }
+}
+
+/* Progress bar */
+.progress-container{
+    background: rgba(255,255,255,0.02);
+    border-radius: 8px;
+    overflow: hidden;
+    height: 12px;
+}
+.progress-bar-custom{
+    width: 0%;
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent-turq), #6a3fac);
+}
+@keyframes fillBar{
+    from{ width: 0%; }
+    to{ width: 100%; }
+}
+
+/* Result box */
+.result-box-custom{
+    display: flex;
+    gap: 12px;
+    align-items: stretch;
+    justify-content: space-between;
+    padding: 12px;
+    border-radius: 10px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.00));
+    border: 1px solid rgba(255,255,255,0.03);
+}
+.result-partition{
+    flex: 1 1 45%;
+    padding: 12px;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+.result-partition.primary .result-percentage{
+    font-weight: 700;
+    font-size: 1.35rem;
+}
+.result-partition .result-label{
+    font-size: 0.95rem;
+    color: var(--muted);
+}
+
+/* Result states */
+.result-robot .primary{ background: linear-gradient(90deg, rgba(32,225,201,0.12), rgba(32,225,201,0.04)); border: 1px solid rgba(32,225,201,0.08); }
+.result-robot .secondary{ background: rgba(106,63,172,0.04); border: 1px solid rgba(255,255,255,0.02); }
+
+.result-om .primary{ background: linear-gradient(90deg, rgba(106,63,172,0.12), rgba(106,63,172,0.04)); border: 1px solid rgba(106,63,172,0.08); }
+.result-om .secondary{ background: rgba(32,225,201,0.04); border: 1px solid rgba(255,255,255,0.02); }
+
+.result-eroare .primary{ background: rgba(255,107,107,0.08); border: 1px solid rgba(255,107,107,0.12); color: var(--text); }
+
+/* Small helpers */
+.text-muted{ color: var(--muted) !important; }
+
+/* Accessible focus states */
+a:focus, button:focus, .drop-zone-label:focus{
+    outline: 3px solid rgba(32,225,201,0.14);
+    outline-offset: 2px;
+}
+
+/* Minor responsive tweaks */
+@media (max-width: 576px){
+    .result-box-custom{ flex-direction: column; }
+}
