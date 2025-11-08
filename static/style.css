@@ -1,32 +1,181 @@
-/* Stiluri personalizate (opțional) */
-
-/* Fundalul paginii */
-body {
-    background-color: #f8f9fa;
+/* --- Definirea Temei de Culori --- */
+:root {
+    --color-purple: #6c5ce7;       /* Un mov vibrant */
+    --color-turquoise: #00f5d4;    /* Un turcoaz strălucitor */
+    --color-dark-bg: #1e1e2d;    /* Fundal principal închis */
+    --color-dark-card: #2c2c3e;  /* Fundal card puțin mai deschis */
+    --color-text-light: #f0f0f8;   /* Text deschis */
+    --color-text-muted: #8a8a9e;  /* Text gri */
+    --color-danger: #ff4757;      /* Pentru erori */
 }
 
-/* Imaginea previzualizată */
-#imagePreview {
-    max-height: 500px; /* Limitează înălțimea maximă a imaginii */
-    border: 5px solid #fff; /* O bordură albă simplă */
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+/* --- Stiluri de Bază --- */
+body.bg-dark-theme {
+    background-color: var(--color-dark-bg);
+    color: var(--color-text-light);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 
-/* Clase dinamice pentru rezultate. 
-  JavaScript-ul va trebui să adauge una din aceste clase 
-  la div-ul #resultBox (și să elimine clasa 'alert-info').
-*/
-
-/* Stil pentru predicția "Om" */
-.result-human {
-    background-color: #d1e7dd; /* Verde deschis */
-    border-color: #badbcc;
-    color: #0f5132; /* Verde închis */
+/* --- Stiluri Card & Header --- */
+.bg-card-dark {
+    background-color: var(--color-dark-card) !important;
+    border: 1px solid var(--color-purple);
 }
 
-/* Stil pentru predicția "Robot" */
-.result-robot {
-    background-color: #cff4fc; /* Albastru deschis */
-    border-color: #b6effb;
-    color: #055160; /* Albastru închis */
+.bg-primary-theme {
+    background: linear-gradient(90deg, var(--color-purple) 0%, var(--color-turquoise) 100%);
+    border-bottom: 0;
+}
+
+/* --- Butonul Principal de Clasificare --- */
+.btn-secondary-theme {
+    background-color: var(--color-turquoise);
+    color: var(--color-dark-bg);
+    border: none;
+    font-weight: 600;
+    padding: 0.75rem 1.25rem;
+    transition: all 0.3s ease;
+}
+
+.btn-secondary-theme:hover,
+.btn-secondary-theme:focus {
+    background-color: var(--color-turquoise);
+    color: var(--color-dark-bg);
+    box-shadow: 0 0 15px var(--color-turquoise);
+    transform: translateY(-2px);
+}
+
+.btn-secondary-theme:disabled {
+    background-color: #555;
+    color: #999;
+}
+
+/* --- Zona de Drag & Drop --- */
+.drop-zone-container {
+    border: 3px dashed var(--color-text-muted);
+    border-radius: 10px;
+    padding: 2rem;
+    text-align: center;
+    background-color: rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+}
+
+.drop-zone-label {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+    color: var(--color-text-muted);
+}
+
+.drop-zone-label svg {
+    color: var(--color-purple);
+    transition: all 0.3s ease;
+}
+
+/* Stare de hover/drag */
+.drop-zone-container:hover,
+.drop-zone-container.drag-over {
+    border-color: var(--color-turquoise);
+    background-color: rgba(0, 245, 212, 0.05);
+}
+
+.drop-zone-container:hover .drop-zone-label,
+.drop-zone-container.drag-over .drop-zone-label {
+    color: var(--color-turquoise);
+}
+
+.drop-zone-container:hover svg,
+.drop-zone-container.drag-over svg {
+    color: var(--color-turquoise);
+    transform: scale(1.1);
+}
+
+/* --- Zona de Preview & Scanare --- */
+.image-preview-container {
+    position: relative; /* Necesar pentru linia de scanare */
+    overflow: hidden; /* Ascunde linia când iese din cadru */
+    border: 2px solid var(--color-purple);
+    border-radius: 8px;
+    background-color: #000;
+    min-height: 200px; /* Înlocuiește placeholder-ul */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.no-preview-box {
+    border: 2px dashed var(--color-text-muted);
+    border-radius: 8px;
+    min-height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-text-muted);
+    background-color: rgba(0,0,0,0.1);
+}
+
+.image-preview-container img {
+    max-height: 350px;
+    width: 100%;
+    object-fit: cover;
+}
+
+/* --- Animația de Scanare --- */
+.scan-line {
+    display: none; /* Ascuns implicit */
+    position: absolute;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background-color: var(--color-turquoise);
+    box-shadow: 0 0 15px 3px var(--color-turquoise);
+    opacity: 0.8;
+}
+
+/* Când containerul are clasa .is-scanning, arată linia și pornește animația */
+.image-preview-container.is-scanning .scan-line {
+    display: block;
+    animation: scan 2s linear infinite;
+}
+
+@keyframes scan {
+    0% {
+        top: 0;
+    }
+    100% {
+        top: 100%;
+    }
+}
+
+/* --- Casetele de Rezultat --- */
+.alert {
+    border: none;
+    color: var(--color-dark-bg);
+}
+
+.alert-info { /* Starea neutră */
+    background-color: #555;
+    color: var(--color-text-light);
+}
+
+.alert-robot { /* Clasa custom pentru "robot" */
+    background-color: var(--color-purple);
+    color: var(--color-text-light);
+    font-weight: 500;
+}
+
+.alert-om { /* Clasa custom pentru "om" */
+    background-color: var(--color-turquoise);
+    color: var(--color-dark-bg);
+    font-weight: 500;
+}
+
+.alert-eroare { /* Clasa custom pentru "eroare" */
+    background-color: var(--color-danger);
+    color: var(--color-text-light);
+    font-weight: 500;
 }

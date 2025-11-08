@@ -7,16 +7,22 @@ from torchvision import transforms, datasets
 import hashlib
 import os
 
-# --- 1. MODIFICARE: Transformări pentru ImageFolder (3 canale) ---
-# Poți schimba această valoare (ex: 64, 128, 224)
-# Rețeaua de mai jos se va adapta automat.
-IMG_SIZE = 128 # Am setat 128 ca exemplu, care probabil a cauzat eroarea
+# --- 0. MODIFICARE: Verificare GPU (Best Practice) ---
+# Selectează automat GPU (cuda) dacă e disponibil, altfel CPU
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+print(f"--- Se va folosi dispozitivul: {device} ---")
+
+
+# --- 1. Transformări pentru ImageFolder (Neschimbat) ---
+IMG_SIZE = 128 
 
 transform_train = transforms.Compose([
-    transforms.Resize((IMG_SIZE, IMG_SIZE)), # Redimensionează orice imagine
-    transforms.ToTensor(),
+    transforms.Resize((IMG_SIZE, IMG_SIZE)), 
     transforms.RandomRotation(10),
-    # Normalizare pentru 3 canale (RGB)
+    # --- MODIFICARE: Adăugăm mai multă augmentare ---
+    transforms.RandomHorizontalFlip(), # O augmentare foarte comună
+    transforms.ColorJitter(brightness=0.2, contrast=0.2), # Ajută la variații de lumină
+    transforms.ToTensor(),
     transforms.Normalize(mean=[0.485, 0.456, 0.406],
                          std=[0.229, 0.224, 0.225])
 ])
@@ -28,8 +34,7 @@ transform_test = transforms.Compose([
                          std=[0.229, 0.224, 0.225])
 ])
 
-# --- 2. MODIFICARE: Încărcare date din ImageFolder ---
-# Folosirea r'...' previne erorile de cale pe Windows
+# --- 2. Încărcare date din ImageFolder (Neschimbat) ---
 data_dir = r'D:\data' 
 
 try:
@@ -39,55 +44,63 @@ try:
     testset = datasets.ImageFolder(os.path.join(data_dir, 'test'), transform=transform_test)
     testloader = torch.utils.data.DataLoader(testset, batch_size=64, shuffle=True)
     
-    # Obținem numărul de clase (va fi 2: 'oameni', 'roboti')
     num_classes = len(trainset.classes)
-    print(f"Clase găsite: {trainset.classes}")
+    print(f"Clase găsite: {trainset.classes}") # ex: ['humans', 'robots']
 
 except FileNotFoundError:
     print(f"EROARE: Nu am găsit folderele 'train' sau 'test' în interiorul '{data_dir}'")
     exit()
 
-# --- 3. MODIFICARE: Arhitectura CNN (Varianta Robustă) ---
+
+# --- 3. MODIFICARE: Arhitectura CNN (Varianta Robustă și Adâncă) ---
 class CVNet(nn.Module):
     def __init__(self, num_classes):
         super().__init__()
         
         # --- Partea de "extragere a caracteristicilor" (convoluție) ---
-        # Definim straturile care procesează imaginea
         self.features = nn.Sequential(
-            nn.Conv2d(3, 32, 3), # 3 canale RGB, 32 filtre, kernel 3x3
+            # Bloc 1: 128x128 -> 64x64
+            nn.Conv2d(3, 32, kernel_size=3, padding=1),
             nn.ReLU(),
-            nn.MaxPool2d(2, 2), # Înjumătățește dimensiunea
-            nn.Dropout(0.5)     # Dropout-ul original
+            nn.MaxPool2d(2, 2), # Dimensiune: (32, 64, 64)
+            
+            # Bloc 2: 64x64 -> 32x32
+            nn.Conv2d(32, 64, kernel_size=3, padding=1),
+            nn.ReLU(),
+            nn.MaxPool2d(2, 2), # Dimensiune: (64, 32, 32)
+            
+            # Bloc 3: 32x32 -> 16x16
+            nn.Conv2d(64, 128, kernel_size=3, padding=1),
+            nn.ReLU(),
+            nn.MaxPool2d(2, 2) # Dimensiune: (128, 16, 16)
         )
         
-        # --- Calcul automat al dimensiunii (Soluția la eroarea ta) ---
-        # 1. Creăm un tensor "fals" cu dimensiunile inputului
-        #    (1 imagine, 3 canale, IMG_SIZE, IMG_SIZE)
+        # --- Calcul automat al dimensiunii (Neschimbat) ---
         dummy_input = torch.randn(1, 3, IMG_SIZE, IMG_SIZE)
-        
-        # 2. Trecem tensorul fals prin straturile de convoluție
         dummy_output = self.features(dummy_input)
         
-        # 3. Aflăm dimensiunea aplatizată (flattened)
-        #    ex: (1, 32, 63, 63) -> (1, 127008) -> 127008
-        #    .view(1, -1) îl aplatizează, .shape[1] ia mărimea
+        # Dimensiunea aplatizată va fi 128 * 16 * 16 = 32768
         flattened_size = dummy_output.view(1, -1).shape[1]
         
         print(f"Dimensiunea de intrare pentru FC calculată automat: {flattened_size}")
         
         # --- Partea de "clasificare" (complet conectată) ---
         self.classifier = nn.Sequential(
-            # 4. Acum folosim dimensiunea corectă, calculată automat
-            nn.Linear(flattened_size, num_classes)
+            # Strat ascuns (hidden layer) pentru a învăța combinații
+            nn.Linear(flattened_size, 256),
+            nn.ReLU(),
+            # Dropout-ul este mult mai eficient aici, între straturile Linear
+            nn.Dropout(0.5), 
+            
+            # Stratul final de ieșire
+            nn.Linear(256, num_classes)
         )
 
     def forward(self, x):
         # 1. Trece prin convoluții
         x = self.features(x)
         
-        # 2. Aplatizează (flatten) pentru stratul Linear
-        #    x.size(0) este batch_size. Acesta este modul robust de a aplatiza.
+        # 2. Aplatizează (flatten)
         x = x.view(x.size(0), -1) 
         
         # 3. Trece prin clasificator
@@ -95,55 +108,84 @@ class CVNet(nn.Module):
         return x
 
 # --- Inițializare model și antrenament ---
-net = CVNet(num_classes=num_classes)
-criterion = nn.CrossEntropyLoss()
-# MODIFICAT (CORECTURĂ): 0.01 este prea mare pentru Adam, 0.001 e mai stabil
+
+# --- MODIFICARE 4: Ponderarea pierderii (Loss Weighting) ---
+# Presupunând că 'humans' e clasa 0 și 'robots' e clasa 1 (ImageFolder sortează alfabetic)
+# Dăm o pondere de 1.6 clasei 'robots' (clasa 1) pentru a compensa dezechilibrul
+# Asigură-te că ordinea corespunde cu print(trainset.classes)
+# Dacă clasele tale sunt ['oameni', 'roboti'], ordinea e corectă.
+weights = torch.tensor([1.0, 1.6]).to(device)
+
+net = CVNet(num_classes=num_classes).to(device) # Mutăm modelul pe device
+criterion = nn.CrossEntropyLoss(weight=weights) # Folosim ponderile
 optimizer = optim.Adam(net.parameters(), lr=0.001) 
 
-num_epochs = 5 # 3 epoci e posibil să fie prea puțin
+# --- MODIFICARE 5: Mai multe epoci ---
+num_epochs = 30 # 5 era mult prea puțin
 
 print("--- Începe antrenamentul ---")
-# MODIFICAT (CORECTURĂ): Trecem modelul în modul de antrenare
-net.train() 
-i = 0
+
+
 for epoch in range(num_epochs):
-    i = i + 1
-    print(i)
+    i = 0
+    # --- MODIFICARE 6: Trecem modelul în modul de antrenare ---
+    net.train() 
     running_loss = 0.0
+    
     for images, labels in trainloader:
+        i = i + 1
+        print(i)
+        # --- MODIFICARE 7: Mutăm datele pe device ---
+        images, labels = images.to(device), labels.to(device)
+        
         out = net(images)
         loss = criterion(out, labels)
+        
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
+        
         running_loss += loss.item()
     
-    print(f"Epoca [{epoch+1}/{num_epochs}], Pierdere: {running_loss/len(trainloader):.4f}")
+    # Calculăm și afișăm acuratețea de antrenament (opțional, dar util)
+    train_loss = running_loss / len(trainloader)
+    
+    # --- Evaluare pe setul de testare LA FIECARE EPOCĂ ---
+    # E util să vezi cum progresează modelul pe date noi
+    correct = 0
+    total = 0
+    test_loss = 0.0
+    
+    # --- MODIFICARE 8: Trecem modelul în modul evaluare ---
+    net.eval() 
+    with torch.no_grad():
+        for images, labels in testloader:
+            # --- MODIFICARE 9: Mutăm datele pe device ---
+            images, labels = images.to(device), labels.to(device)
+            
+            out = net(images)
+            loss = criterion(out, labels) # Putem calcula și pierderea pe test
+            test_loss += loss.item()
+            
+            pred = out.argmax(1)
+            correct += (pred == labels).sum().item()
+            total += labels.size(0)
+
+    acc = 100 * correct / total
+    
+    print(f"Epoca [{epoch+1}/{num_epochs}], "
+          f"Loss Antrenare: {train_loss:.4f}, "
+          f"Loss Test: {test_loss/len(testloader):.4f}, "
+          f"Acuratețe Test: {acc:.2f}%")
 
 print("--- Antrenament finalizat ---")
 
-# --- Evaluare ---
-correct = 0
-total = 0
-# MODIFICAT (CORECTURĂ): Trecem modelul în modul evaluare (dezactivează dropout)
-net.eval() 
-with torch.no_grad():
-    for images, labels in testloader:
-        out = net(images)
-        pred = out.argmax(1)
-        correct += (pred == labels).sum().item()
-        total += labels.size(0)
-
-acc = 100 * correct / total
-print(f"Custom Acc: {acc:.2f}%")
-
-# --- 5. MODIFICARE: Salvarea modelului ---
-if acc > 10:
-    model_save_path = "model.pt"
+# --- MODIFICARE 10: Prag de salvare mai realist ---
+if acc > 65: # Am crescut pragul de la 10% la 65%
+    model_save_path = "model_imbunatatit.pt"
     torch.save(net.state_dict(), model_save_path)
-    print(f"--- Model salvat cu succes ca '{model_save_path}' ---")
+    print(f"--- Model salvat cu succes ca '{model_save_path}' (Acc: {acc:.2f}%) ---")
     
 else:
-    # Am corectat comentariul să reflecte codul (10%)
-    print(f"Acuratețea de {acc:.2f}% este sub pragul de 10%.")
-    print(" Overfit Lock - Încearcă să rulezi din nou sau să ajustezi modelul.")
+    print(f"Acuratețea de {acc:.2f}% este sub pragul de 65%.")
+    print("Modelul nu a învățat suficient. Încearcă mai multe epoci sau mai multe date.")

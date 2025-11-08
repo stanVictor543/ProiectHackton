@@ -6,10 +6,11 @@ from PIL import Image
 import numpy as np
 import io
 
-# --- Importuri specifice pentru Model (Exemplu cu Keras/TensorFlow) ---
-# Vei decomenta și adapta în funcție de ce primești de la Membrul 2
-# from tensorflow.keras.models import load_model 
-# from tensorflow.keras.preprocessing.image import img_to_array
+# --- Importuri specifice pentru Model (PyTorch) ---
+import torch
+import torch.nn as nn
+import torchvision.transforms as transforms
+# from torchvision.models import ... # Exemplu: Aici ai importa arhitectura modelului dacă e nevoie
 
 # =====================================================================
 # 1. CONFIGURARE FLASK & BAZĂ DE DATE
@@ -17,6 +18,7 @@ import io
 app = Flask(__name__)
 DB_NAME = "predictions.db"
 MODEL_PATH = "model.pt" # Numele modelului de la Membrul 2
+IMG_SIZE = 128          # Dimensiunea imaginii cerută
 
 # Funcție pentru a crea tabela în baza de date
 def init_db():
@@ -41,26 +43,56 @@ def init_db():
 # (Aici vei integra codul de la colegii tăi)
 # =====================================================================
 
+# --- DEFINIREA TRANSFORMĂRII PENTRU PREPROCESARE ---
+# Folosim logica de 'test' (validare/inferență) pe care ai furnizat-o
+data_transform = transforms.Compose([
+    transforms.Resize((IMG_SIZE, IMG_SIZE)),
+    transforms.ToTensor(),
+    transforms.Normalize(mean=[0.485, 0.456, 0.406],
+                         std=[0.229, 0.224, 0.225])
+])
+
+
 # Încărcăm modelul o singură dată la pornire
-# model = load_model(MODEL_PATH) # Decomentează când ai modelul
+# --- EXEMPLU PYTORCH (de adaptat) ---
+# Pas 1: Definește arhitectura modelului (dacă nu e salvată complet)
+# class SimpleCNN(nn.Module):
+#     ...
+# model = SimpleCNN()
+#
+# Pas 2: Încarcă 'state_dict' (greutățile salvate)
+# model.load_state_dict(torch.load(MODEL_PATH))
+# model.eval() # !! IMPORTANT: Setează modelul în modul de evaluare
+# print(f"Model PyTorch încărcat din {MODEL_PATH}")
+# --- Sfârșit Exemplu PyTorch ---
+
 print(f"Placeholder: Modelul ar fi încărcat din {MODEL_PATH}")
+
 
 # Definirea claselor (IMPORTANT: trebuie să fie în ordinea corectă)
 CLASS_NAMES = ["human", "robot"] # Sau invers, verifică cu Membrul 2
 
 def preprocess_image(image_bytes):
     """
-    Funcție de preprocesare. 
-    Vei primi logica exactă de la Membrul 1.
+    Funcție de preprocesare care folosește transformările PyTorch.
     """
-    # Exemplu de preprocesare (TREBUIE ADAPTAT!)
+    # Deschide imaginea din bytes
     img = Image.open(io.BytesIO(image_bytes))
-    img = img.resize((224, 224)) # Dimensiunea așteptată de model
-    img_array = np.array(img) / 255.0 # Normalizare
-    img_array = np.expand_dims(img_array, axis=0) # Adaugă dimensiunea 'batch'
     
-    print(f"Imagine preprocesată cu shape: {img_array.shape}")
-    return img_array
+    # --- IMPORTANT: Asigură-te că imaginea e RGB ---
+    # Modelul așteaptă 3 canale (conform normalizării)
+    img = img.convert("RGB")
+    
+    # Aplică transformările definite global
+    # Acesta va returna un Tensor
+    img_tensor = data_transform(img)
+    
+    # Adaugă dimensiunea 'batch' (de la [C, H, W] la [1, C, H, W])
+    # Modelul se așteaptă la un batch de imagini, chiar dacă e doar una
+    img_tensor = img_tensor.unsqueeze(0) 
+    
+    print(f"Imagine preprocesată cu shape: {img_tensor.shape}")
+    return img_tensor
 
 # =====================================================================
 # 3. LOGICA DE SALVARE ÎN BAZA DE DATE
@@ -116,16 +148,28 @@ def predict():
         # Citim imaginea
         img_bytes = file.read()
         
-        # 1. Preprocesare (folosind funcția de la Membrul 1)
-        processed_image = preprocess_image(img_bytes)
+        # 1. Preprocesare (folosind noua funcție cu PyTorch)
+        processed_image_tensor = preprocess_image(img_bytes)
 
         # 2. Predicție (folosind modelul de la Membrul 2)
-        # --- EXEMPLU (de adaptat) ---
-        # prediction_scores = model.predict(processed_image)[0]
-        # confidence = float(np.max(prediction_scores))
-        # predicted_index = np.argmax(prediction_scores)
-        # predicted_class = CLASS_NAMES[predicted_index]
-        # --- Sfârșit Exemplu ---
+        
+        # --- EXEMPLU PYTORCH (de adaptat și decomentat) ---
+        # with torch.no_grad(): # Dezactivează calculul gradientului pentru viteză
+        #     output_logits = model(processed_image_tensor)
+        #     
+        #     # Aplică Softmax pentru a obține probabilități
+        #     probabilities = torch.nn.functional.softmax(output_logits, dim=1)[0]
+        #     
+        #     # Găsește clasa cu probabilitatea cea mai mare
+        #     confidence_tensor = torch.max(probabilities)
+        #     predicted_index_tensor = torch.argmax(probabilities)
+        #     
+        #     # Convertește din tensori în numere simple
+        #     confidence = float(confidence_tensor.item())
+        #     predicted_index = int(predicted_index_tensor.item())
+        #     
+        #     predicted_class = CLASS_NAMES[predicted_index]
+        # --- Sfârșit Exemplu PyTorch ---
         
         # --- PLACEHOLDER (de șters când ai modelul) ---
         print("!!! ATENȚIE: Se folosește un rezultat placeholder !!!")
