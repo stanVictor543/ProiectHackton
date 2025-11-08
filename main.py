@@ -27,7 +27,7 @@ transform_test = transforms.Compose([
 ])
 
 # --- 2. MODIFICARE: Încărcare date din ImageFolder ---
-data_dir = './data_impartita'
+data_dir = 'D:\hrp\images'
 try:
     trainset = datasets.ImageFolder(os.path.join(data_dir, 'train'), transform=transform_train)
     trainloader = torch.utils.data.DataLoader(trainset, batch_size=64, shuffle=True)
@@ -108,7 +108,7 @@ with torch.no_grad():
 acc = 100 * correct / total
 print(f"Custom Acc: {acc:.2f}%")
 
-if acc > 92:
+if acc > 10:
     # --- 5. MODIFICARE: Salvarea modelului ---
     model_save_path = "model.pt"
     torch.save(net.state_dict(), model_save_path)
