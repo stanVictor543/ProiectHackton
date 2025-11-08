@@ -1,0 +1,32 @@
+/* Stiluri personalizate (opțional) */
+
+/* Fundalul paginii */
+body {
+    background-color: #f8f9fa;
+}
+
+/* Imaginea previzualizată */
+#imagePreview {
+    max-height: 500px; /* Limitează înălțimea maximă a imaginii */
+    border: 5px solid #fff; /* O bordură albă simplă */
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+/* Clase dinamice pentru rezultate. 
+  JavaScript-ul va trebui să adauge una din aceste clase 
+  la div-ul #resultBox (și să elimine clasa 'alert-info').
+*/
+
+/* Stil pentru predicția "Om" */
+.result-human {
+    background-color: #d1e7dd; /* Verde deschis */
+    border-color: #badbcc;
+    color: #0f5132; /* Verde închis */
+}
+
+/* Stil pentru predicția "Robot" */
+.result-robot {
+    background-color: #cff4fc; /* Albastru deschis */
+    border-color: #b6effb;
+    color: #055160; /* Albastru închis */
+}
